@@ -8,11 +8,13 @@ namespace StateMechine
         private protected readonly Animator animator;
         
         private protected static readonly int IdleHash = Animator.StringToHash("Idle");
+        private protected static readonly int DashHash = Animator.StringToHash("Dash");
         private protected static readonly int RunHash = Animator.StringToHash("Run");
+        //private protected static readonly int AttackHash = Animator.StringToHash("Attack");
+        
+        protected const float crossFadeDuration = 0.1f;
 
-        private protected const float crossFadeDuration = 0.1f;
-
-        private protected BaseState()
+        protected BaseState(PlayerController player, Animator animator)
         {
             this.player = player;
             this.animator = animator;
@@ -20,22 +22,29 @@ namespace StateMechine
         
         public virtual void OnEnter()
         {
-            throw new System.NotImplementedException();
+            //noop
         }
 
         public virtual void Update()
         {
-            throw new System.NotImplementedException();
+            //noop
+
         }
+        
 
         public virtual void FixedUpdate()
         {
-            throw new System.NotImplementedException();
+            //noop
+
+        }
+
+        public virtual void SwitchAttackAnim(int newAttackHash)
+        {
         }
 
         public virtual void OnExit()
         {
-            throw new System.NotImplementedException();
+            Debug.Log("Exit state");
         }
     }
 }

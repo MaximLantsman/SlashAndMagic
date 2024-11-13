@@ -60,6 +60,7 @@ namespace Utilities
             if (IsRunning && Time <= 0)
             {
                 Stop();
+                IsRunning = false;
             }
         }
         

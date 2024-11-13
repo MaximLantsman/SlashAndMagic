@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Entities;
 using Entities.SpawnSystem;
 using KBCore.Refs;
+using StateMechine;
 using UnityEngine;
 using Utilities;
 using WeaponSystem;
@@ -15,7 +16,8 @@ public class PlayerController : ValidatedMonoBehaviour
     
     [Header("Movement Settings")]
     [SerializeField]private float moveSpeed = 100f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField]private float rotationSpeed = 10f;
+    [SerializeField]private float smoothTime = 0.2f;
     
     [Header("Dash Settings")]
     [SerializeField]private float dashForce = 10f;
@@ -29,6 +31,8 @@ public class PlayerController : ValidatedMonoBehaviour
     
     private Vector3 _movement;
     private float _dashVelocity=1f;
+    private float currentSpeed;
+    private float velocity;
     
     private List<Timer> timers;
     private CountdownTimer dashTimer;
@@ -37,17 +41,42 @@ public class PlayerController : ValidatedMonoBehaviour
     private CountdownTimer attackTimer;
     private CountdownTimer attackCooldownTimer;
 
+    private StateMachine stateMachine;
+    
+    private const float ZeroF = 0f;
     private const float oneF = 1f;
     
-    private readonly int _runningAnimation = Animator.StringToHash("IsRunning");
-    
+    private readonly int _runningAnimation = Animator.StringToHash("Speed");
+
+    private BaseState attackState;
     private void Awake()
     {
-        //WeaponSummon();
-        //weaponSpawner.Spawn()
-        //WeaponEquip(new );
-        SetupTimers();    
+        Debug.Log(Animator.StringToHash("AttackDagger"));
+        Debug.Log(Animator.StringToHash("AttackSword"));
+        SetupTimers();
+        
+        //State Machine
+        stateMachine = new StateMachine();
+        
+        //Declare states
+        BaseState LocomotionState = new LocomotionState(this,animator);
+        BaseState DashState = new DashState(this,animator);
+        attackState = new AttackState(this,animator);
+        
+        //Define transitions
+        //At(RunState, AttackState, new FuncPredicate(()=> attackTimer.IsRunning));
+        //At(AttackState, RunState, new FuncPredicate(() => !attackTimer.IsRunning));
+        At(LocomotionState, DashState, new FuncPredicate(() => dashTimer.IsRunning));
+        
+        At(LocomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
+        
+        Any(LocomotionState, new FuncPredicate(()=> !dashTimer.IsRunning && !attackTimer.IsRunning));
+        
+        stateMachine.SetState(LocomotionState);
     }
+    
+    private void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
+    private void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);
 
     private void SetupTimers()
     {
@@ -55,20 +84,18 @@ public class PlayerController : ValidatedMonoBehaviour
         dashTimer = new CountdownTimer(dashDuration);
         dashCooldownTimer = new CountdownTimer(dashCooldown);
 
-        if (currentWeapon != null)
-        {
-            attackTimer = new CountdownTimer(currentWeapon._weaponData.attackDuration);
-            attackCooldownTimer = new CountdownTimer(currentWeapon._weaponData.attackCooldown);
-        }
-        else
-        {
-            attackTimer = new CountdownTimer(1); //NOT GOOD AT ALL
-            attackCooldownTimer = new CountdownTimer(1);
-        }
+        attackTimer = new CountdownTimer(currentWeapon._weaponData.attackDuration);
+        attackCooldownTimer = new CountdownTimer(currentWeapon._weaponData.attackCooldown);
+
         
         timers = new List<Timer>(4) { dashTimer, dashCooldownTimer, attackCooldownTimer, attackTimer };
         
-        dashTimer.OnTimerStop += () => dashCooldownTimer.Start();
+        dashTimer.OnTimerStop += () =>
+        {
+            dashCooldownTimer.Start();
+            _dashVelocity = oneF;
+        };
+
     }
     
     private void Start() => input.EnablePlayerActions();
@@ -94,7 +121,6 @@ public class PlayerController : ValidatedMonoBehaviour
             
             HandleAttack();
         }
-        
     }
     
     private void OnDash(bool preformed)
@@ -102,18 +128,22 @@ public class PlayerController : ValidatedMonoBehaviour
         if (preformed && !dashTimer.IsRunning && !dashCooldownTimer.IsRunning)
         {
             dashTimer.Start();
-        }else if (!preformed && dashTimer.IsRunning)
+        }/*else if ( dashTimer.IsRunning)
         {
             dashTimer.Stop();
-        }
+        }*/
     }
 
     // Update is called once per frame
     void Update()
     {
+        _movement = new Vector3(input.Direction.x, 0, input.Direction.y);
+
+        
         HandleTimers();
+        UpdateAnimator();
         //Problem with getting stuck - too long
-        if (!attackTimer.IsRunning)
+        /*if (!attackTimer.IsRunning)
         {
             _movement = new Vector3(input.Direction.x, 0, input.Direction.y);
             UpdateAnimator();
@@ -121,20 +151,22 @@ public class PlayerController : ValidatedMonoBehaviour
         else
         {
             _movement = Vector3.zero;
-        }
+        }*/
+        
+        stateMachine.Update();
     }
 
     private void FixedUpdate()
     {
-       
-        HandleMovement();
-        HandleDash();
-            
+        //HandleMovement();
+        //HandleDash();
+        
+        stateMachine.FixedUpdate();
     }
     
     private void UpdateAnimator()
     {
-        animator.SetBool(_runningAnimation,_movement != Vector3.zero);
+        animator.SetFloat(_runningAnimation,currentSpeed);
     }
 
     private void HandleTimers()
@@ -145,14 +177,14 @@ public class PlayerController : ValidatedMonoBehaviour
         }
     }
 
-    private void HandleDash()
+    public void HandleDash()
     {
-        if (!dashTimer.IsRunning)
+        /*if (!dashTimer.IsRunning)
         {
             _dashVelocity = oneF;
             dashTimer.Stop();
             return;
-        }
+        }*/
 
         if (dashTimer.IsRunning)
         {
@@ -168,25 +200,34 @@ public class PlayerController : ValidatedMonoBehaviour
         }
     }
     
-    private void HandleAttack()
+    public void HandleAttack()
     {
-        animator.SetTrigger(currentWeapon._animationName);
+        //animator.SetTrigger(currentWeapon._animationName);
         
-        currentWeapon.Attack();
+        //currentWeapon.Attack();
     }
 
-    private void HandleMovement()
+    public void HandleMovement()
     {
         //Move the Player
-        Vector3 velocity = _movement * (_dashVelocity * (moveSpeed * Time.fixedDeltaTime));
-        
-        rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
-
-        if (_movement != Vector3.zero)
-        {
+        Vector3 adjustedSpeed = _movement * (_dashVelocity * (moveSpeed * Time.fixedDeltaTime));
+        if (adjustedSpeed.magnitude > ZeroF)
+        { 
+            rb.linearVelocity = new Vector3(adjustedSpeed.x, rb.linearVelocity.y, adjustedSpeed.z);
+            
             HandleRotation(_movement);
+            SmoothSpeed(_movement.magnitude);
+        }
+        else
+        {
+            SmoothSpeed(ZeroF);
         }
         
+    }
+
+    private void SmoothSpeed(float value)
+    {
+        currentSpeed = Mathf.SmoothDamp(currentSpeed, value, ref velocity, smoothTime);
     }
 
     private void HandleRotation(Vector3 moveDirection)
@@ -203,11 +244,14 @@ public class PlayerController : ValidatedMonoBehaviour
             DropWeapon(currentWeapon);
         
         currentWeapon = equippedWeapon;
+        attackState.SwitchAttackAnim(Animator.StringToHash(equippedWeapon._animationName));
+       
         attackTimer = new CountdownTimer(equippedWeapon._weaponData.attackDuration);
         attackCooldownTimer = new CountdownTimer(equippedWeapon._weaponData.attackCooldown);
         timers[2] = attackTimer; //Hardcoded bad - FIXXXX
         timers[3] = attackCooldownTimer; //Hardcoded bad - FIXXXX
-
+        
+        
         //Create weapon, temp
         equippedWeapon.gameObject.transform.SetParent(weaponParent.transform);
         equippedWeapon.transform.localPosition = Vector3.zero;

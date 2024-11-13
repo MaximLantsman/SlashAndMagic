@@ -13,8 +13,6 @@ namespace Entities
     
         [SerializeField]private int _damage;
         
-        private protected static readonly int RunHash = Animator.StringToHash("Run");
-
         public string name=>_name;
     
         public float attackDuration=>_attackDuration;
@@ -22,6 +20,5 @@ namespace Entities
     
         public int damage=>_damage;
         
-        public int animationHash => RunHash;
     }
 }
