@@ -16,9 +16,7 @@ public class AttackState : BaseState
 
     public override void SwitchAttackAnim(int newAttackHash)
     {
-        Debug.Log(newAttackHash);
         weaponAnimation = newAttackHash;
-        Debug.Log(weaponAnimation);
     }
 
     public override void FixedUpdate()

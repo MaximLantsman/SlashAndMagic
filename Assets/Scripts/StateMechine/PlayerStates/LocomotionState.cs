@@ -7,13 +7,11 @@ public class LocomotionState : BaseState
 
     public override void OnEnter()
     {
-        Debug.Log("move start");
         animator.CrossFade(IdleHash, crossFadeDuration);
     }
 
     public override void FixedUpdate()
     {
-        Debug.Log("moving");
         player.HandleMovement();
     }
 }

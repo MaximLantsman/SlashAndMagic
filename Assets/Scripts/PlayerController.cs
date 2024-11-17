@@ -51,8 +51,6 @@ public class PlayerController : ValidatedMonoBehaviour
     private BaseState attackState;
     private void Awake()
     {
-        Debug.Log(Animator.StringToHash("AttackDagger"));
-        Debug.Log(Animator.StringToHash("AttackSword"));
         SetupTimers();
         
         //State Machine
@@ -204,7 +202,7 @@ public class PlayerController : ValidatedMonoBehaviour
     {
         //animator.SetTrigger(currentWeapon._animationName);
         
-        //currentWeapon.Attack();
+        currentWeapon.Attack();
     }
 
     public void HandleMovement()

@@ -21,7 +21,6 @@ public class WeaponHitboxHandler : MonoBehaviour
     public void PreformHitboxAttack(float attackDuration,int attackDamage)
     {
         weaponHitbox.enabled = true;
-        hittedEnemies.Clear();
         currentDamage = attackDamage;
         StartCoroutine(StopHitboxAttack(attackDuration));
     }
@@ -30,20 +29,15 @@ public class WeaponHitboxHandler : MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         weaponHitbox.enabled = false;
+        hittedEnemies.Clear();
     }
     
     private void OnTriggerEnter(Collider other)
     {
-        /*if (other.GetComponent<IDamagable>() != null && !hittedEnemies.Contains(other.gameObject))
-        {
-            hittedEnemies.Add(other.gameObject);
-            other.GetComponent<IDamagable>().Damage(curremtDamage);
-        }*/
-
-        if (other.TryGetComponent(out IDamagable damaged) == true)
+        if (!hittedEnemies.Contains(other.gameObject) && other.TryGetComponent(out IDamagable damaged))
         {
             damaged.Damage(currentDamage);
+            hittedEnemies.Add(other.gameObject);
         }
-
     }
 }
