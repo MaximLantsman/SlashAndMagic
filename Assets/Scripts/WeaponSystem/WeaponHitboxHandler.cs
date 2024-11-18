@@ -6,20 +6,16 @@ using UnityEngine;
 public class WeaponHitboxHandler : MonoBehaviour
 {
     
-    private int enemyLayer;
     private int currentDamage;
 
     private Collider weaponHitbox;
     private List<GameObject> hittedEnemies = new List<GameObject>();
 
-    private void Awake()
+
+    public void PreformHitboxAttack(float attackDuration,int attackDamage,Collider weaponCollider)
     {
-        enemyLayer = LayerMask.NameToLayer("Enemy");
-        weaponHitbox = GetComponent<Collider>();
-    } 
-    
-    public void PreformHitboxAttack(float attackDuration,int attackDamage)
-    {
+
+        weaponHitbox = weaponCollider;
         weaponHitbox.enabled = true;
         currentDamage = attackDamage;
         StartCoroutine(StopHitboxAttack(attackDuration));

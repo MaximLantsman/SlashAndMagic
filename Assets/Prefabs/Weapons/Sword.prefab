@@ -141,7 +141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponData: {fileID: 11400000, guid: c7ee9eaf179102a409145f95fd19dd3e, type: 2}
   animationName: AttackSword
-  weaponInstance: {fileID: 0}
+  weaponCollider: {fileID: 425369224473464667}
 --- !u!114 &579080860224119526
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Damagable;
 using Entities;
 using Entities.SpawnSystem;
 using KBCore.Refs;
@@ -7,12 +9,16 @@ using UnityEngine;
 using Utilities;
 using WeaponSystem;
 
-public class PlayerController : ValidatedMonoBehaviour
+public class PlayerController : ValidatedMonoBehaviour, IDamagable
 {
     [Header("References")]
     [SerializeField,Self]private Rigidbody rb;
     [SerializeField,Self]private Animator animator;
     [SerializeField,Anywhere]private InputReader input;
+    
+    [Header("Movement Settings")]
+    [SerializeField]private int maxHealth = 100;
+
     
     [Header("Movement Settings")]
     [SerializeField]private float moveSpeed = 100f;
@@ -29,6 +35,8 @@ public class PlayerController : ValidatedMonoBehaviour
     [SerializeField]private GameObject weaponParent;
     [SerializeField]private WeaponSpawnManager weaponSpawner;
     
+    private int currentHealth;
+    
     private Vector3 _movement;
     private float _dashVelocity=1f;
     private float currentSpeed;
@@ -38,6 +46,9 @@ public class PlayerController : ValidatedMonoBehaviour
     private CountdownTimer dashTimer;
     private CountdownTimer dashCooldownTimer;
 
+    private Dictionary<Collider, Weapon> weaponDictionary = new Dictionary<Collider, Weapon>();
+    [SerializeField]private Weapon[] weaponsInGame;
+    
     private CountdownTimer attackTimer;
     private CountdownTimer attackCooldownTimer;
 
@@ -46,12 +57,20 @@ public class PlayerController : ValidatedMonoBehaviour
     private const float ZeroF = 0f;
     private const float oneF = 1f;
     
+    private int pickupLayer;
+    
     private readonly int _runningAnimation = Animator.StringToHash("Speed");
+    private readonly string pickupLayerName = "PickUp";
 
     private BaseState attackState;
     private void Awake()
     {
+        currentHealth = maxHealth;
+        
         SetupTimers();
+        BuiltWeaponDictionary();
+        
+        pickupLayer = LayerMask.NameToLayer(pickupLayerName);
         
         //State Machine
         stateMachine = new StateMachine();
@@ -61,9 +80,7 @@ public class PlayerController : ValidatedMonoBehaviour
         BaseState DashState = new DashState(this,animator);
         attackState = new AttackState(this,animator);
         
-        //Define transitions
-        //At(RunState, AttackState, new FuncPredicate(()=> attackTimer.IsRunning));
-        //At(AttackState, RunState, new FuncPredicate(() => !attackTimer.IsRunning));
+
         At(LocomotionState, DashState, new FuncPredicate(() => dashTimer.IsRunning));
         
         At(LocomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
@@ -72,7 +89,15 @@ public class PlayerController : ValidatedMonoBehaviour
         
         stateMachine.SetState(LocomotionState);
     }
-    
+
+    private void BuiltWeaponDictionary()
+    {
+        foreach (Weapon weapon in weaponsInGame)
+        {
+            weaponDictionary.Add(weapon.weaponCollider, weapon);
+        }
+    }
+
     private void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
     private void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);
 
@@ -177,13 +202,6 @@ public class PlayerController : ValidatedMonoBehaviour
 
     public void HandleDash()
     {
-        /*if (!dashTimer.IsRunning)
-        {
-            _dashVelocity = oneF;
-            dashTimer.Stop();
-            return;
-        }*/
-
         if (dashTimer.IsRunning)
         {
             float launchpoint = 0.9f;
@@ -254,7 +272,7 @@ public class PlayerController : ValidatedMonoBehaviour
         equippedWeapon.gameObject.transform.SetParent(weaponParent.transform);
         equippedWeapon.transform.localPosition = Vector3.zero;
         equippedWeapon.transform.localRotation = Quaternion.identity;
-        currentWeapon.weaponInstance = equippedWeapon.gameObject.GetComponent<WeaponHitboxHandler>(); //not good!
+        //currentWeapon.weaponInstance = equippedWeapon.gameObject.GetComponent<WeaponHitboxHandler>(); //not good!
     }
 
     private void DropWeapon(Weapon weaponDrop)
@@ -264,5 +282,20 @@ public class PlayerController : ValidatedMonoBehaviour
         weaponDrop.GetComponent<Collider>().enabled = true;*/
         
         Destroy(weaponDrop.gameObject);
+    }
+
+    public void Damage(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log(currentHealth);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (pickupLayer == other.gameObject.layer)
+        {
+            WeaponEquip(weaponDictionary[other]);
+        }
+        
     }
 }

@@ -1,25 +1,34 @@
-﻿using UnityEngine;
+﻿using Entities;
+using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyAttackState : EnemyBaseState
 {
     private readonly NavMeshAgent agent;
-
-    public EnemyAttackState(Enemy enemy, Animator animator, NavMeshAgent agent, Transform player) : base(enemy, animator)
+    private int weaponAnimation;
+    private Weapon curWeapon;
+    
+    public EnemyAttackState(Enemy enemy, Animator animator, NavMeshAgent agent, int newAttackHash,Weapon weaponAttack) : base(enemy, animator)
     {
+        weaponAnimation = newAttackHash;
+        curWeapon = weaponAttack;
         this.agent = agent;
     }
 
     public override void OnEnter()
     {
+        
         agent.SetDestination(enemy.transform.position);
-        animator.CrossFade(AttackHash, crossFadeDuration);
+        
+        animator.CrossFade(weaponAnimation, crossFadeDuration);
         enemy.HandleRotation();
+
     }
+    
 
     public override void Update()
     {
-        Debug.Log("attacking");
         enemy.Attack();
+
     }
 }

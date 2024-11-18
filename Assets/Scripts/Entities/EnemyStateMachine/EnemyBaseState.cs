@@ -12,9 +12,6 @@ public abstract class EnemyBaseState: IState
     protected static readonly int IdleHash = Animator.StringToHash("Idle");
     protected static readonly int RunHash = Animator.StringToHash("Run");
     protected static readonly int BattleCryHash = Animator.StringToHash("BattleCry");
-    protected static readonly int AttackHash = Animator.StringToHash("WideSwing");
-
-
     
     private protected EnemyBaseState(Enemy enemy, Animator animator)
     {
@@ -25,6 +22,11 @@ public abstract class EnemyBaseState: IState
     public virtual void OnEnter()
     {
         throw new NotImplementedException();
+    }
+
+    public virtual void SwitchAttackAnim(int newAttackHash)
+    {
+        //noop
     }
 
     public virtual void Update()
