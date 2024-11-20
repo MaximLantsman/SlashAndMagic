@@ -1,23 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Entities.SpawnSystem.EnemySpawnManager;
 
-public class WeaponHitboxHandler : MonoBehaviour
+public class EnemyHitboxHandler : MonoBehaviour
 {
-    
     private int currentDamage;
-    private PlayerController player;
+
     private Collider weaponHitbox;
     private List<GameObject> hittedEnemies = new List<GameObject>();
+    
+    private PlayerController player;
 
 
-    public void PreformHitboxAttack(float attackDuration,int attackDamage,Collider weaponCollider)
+    public void PreformHitboxAttack(float attackDuration,int attackDamage,Collider weaponCollider, PlayerController playerSent)
     {
         weaponHitbox = weaponCollider;
         weaponHitbox.enabled = true;
         currentDamage = attackDamage;
-
+        player = playerSent;
+        
         StartCoroutine(StopHitboxAttack(attackDuration));
     }
 
@@ -30,10 +31,9 @@ public class WeaponHitboxHandler : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (!hittedEnemies.Contains(other.gameObject) && activeEnteties.TryGetValue(other, out var takeDamage))
-        {
-            takeDamage.TakeDamage(currentDamage);
-            hittedEnemies.Add(other.gameObject);
-        }
+        //if (other.gameObject == player.gameObject || activeEnemies[other] != null)
+        //{
+            
+        //}
     }
 }

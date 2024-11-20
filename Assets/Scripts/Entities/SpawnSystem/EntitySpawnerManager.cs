@@ -22,7 +22,6 @@ namespace Entities.SpawnSystem
                 SpawnPointStrategyType.Linear => new LinearSpawnPointStrategy(spawnPoints),
                 SpawnPointStrategyType.Random => new RandomSpawnPointStrategy(spawnPoints),
                 _ => spawnPointStrategy
-
             };
         }
 

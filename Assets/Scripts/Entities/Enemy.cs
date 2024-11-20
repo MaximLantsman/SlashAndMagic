@@ -6,23 +6,17 @@ using UnityEngine;
 using UnityEngine.AI;
 using Utilities;
 
-public abstract class Enemy : Entity, IDamagable
+public abstract class Enemy : Entity
 {
     [SerializeField, Self] public NavMeshAgent agent;
     [SerializeField, Self] public Animator animator;
-    [SerializeField, Anywhere] public Transform player;
-    
-    [SerializeField]private int maxhealth = 100;
-    
-    private int currentHealth;
+    [SerializeField, Self] public Collider enemyCollider;
+    [SerializeField, Self] public Health.Health health;
+    public Transform player;
     
     private void OnValidate() => this.ValidateRefs();
-
-    private void Start()
-    {
-        currentHealth = maxhealth;
-    }
     
+    public abstract void OnInitialized();
     protected abstract void Update();
 
     protected abstract void FixedUpdate();
@@ -37,13 +31,6 @@ public abstract class Enemy : Entity, IDamagable
     {
         transform.LookAt(player.position);
     }
-    
-    public void Damage(int damageAmount)
-    {
-        currentHealth-=damageAmount;
-        Debug.Log(currentHealth);
-    }
-    
 }
 
 

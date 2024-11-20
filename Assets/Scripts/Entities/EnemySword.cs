@@ -9,10 +9,10 @@ public class EnemySword : Enemy
     [SerializeField] private string enemyAttackAnimation;
     [SerializeField] private float timeBetweenAttacks = 2f;
     [SerializeField] private float timeBetweenBattleCry = 2f;
-    [SerializeField]private float attackRange = 2f;
-
+    [SerializeField] private float attackRange = 2f;
     
-    [SerializeField]private Weapon currentWeapon;
+    
+    [SerializeField] private Weapon currentWeapon;
     
     private StateMachine stateMachine;
 
@@ -20,7 +20,7 @@ public class EnemySword : Enemy
     private CountdownTimer attackTimer;
     private CountdownTimer battleCryTimer;
 
-    private void Awake()
+    public override void OnInitialized()
     {
         SetUpTimers();
 

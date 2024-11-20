@@ -10,7 +10,7 @@ public class EnemyChaseState : EnemyBaseState
     public EnemyChaseState(Enemy enemy, Animator animator, NavMeshAgent agent,Transform player) : base(enemy, animator)
     {
         this.agent = agent;
-        this.playerPosition = player;
+        playerPosition = player;
     }
 
     public override void OnEnter()

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Damagable;
 using Entities;
 using Entities.SpawnSystem;
 using KBCore.Refs;
@@ -9,16 +7,14 @@ using UnityEngine;
 using Utilities;
 using WeaponSystem;
 
-public class PlayerController : ValidatedMonoBehaviour, IDamagable
+public class PlayerController : ValidatedMonoBehaviour
 {
     [Header("References")]
     [SerializeField,Self]private Rigidbody rb;
     [SerializeField,Self]private Animator animator;
+    [SerializeField,Self]public Collider collider;
+    [SerializeField, Self] public Health.Health health;
     [SerializeField,Anywhere]private InputReader input;
-    
-    [Header("Movement Settings")]
-    [SerializeField]private int maxHealth = 100;
-
     
     [Header("Movement Settings")]
     [SerializeField]private float moveSpeed = 100f;
@@ -35,7 +31,8 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
     [SerializeField]private GameObject weaponParent;
     [SerializeField]private WeaponSpawnManager weaponSpawner;
     
-    private int currentHealth;
+    [Header("Death Settings")]
+    [SerializeField]private float hitStunDuration = 1f;
     
     private Vector3 _movement;
     private float _dashVelocity=1f;
@@ -51,6 +48,8 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
     
     private CountdownTimer attackTimer;
     private CountdownTimer attackCooldownTimer;
+    
+    private CountdownTimer HitStunTimer;
 
     private StateMachine stateMachine;
     
@@ -59,14 +58,18 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
     
     private int pickupLayer;
     
+    private BaseState attackState;
+    
     private readonly int _runningAnimation = Animator.StringToHash("Speed");
     private readonly string pickupLayerName = "PickUp";
 
-    private BaseState attackState;
+    [SerializeField]private bool isDead;
+
     private void Awake()
     {
-        currentHealth = maxHealth;
-        
+       
+        health.OnHit.AddListener(StartHitStunTimer);
+       
         SetupTimers();
         BuiltWeaponDictionary();
         
@@ -78,6 +81,9 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
         //Declare states
         BaseState LocomotionState = new LocomotionState(this,animator);
         BaseState DashState = new DashState(this,animator);
+        BaseState HitStunState = new HitStunState(this,animator);
+        BaseState DeathState = new DeathStunState(this,animator);
+
         attackState = new AttackState(this,animator);
         
 
@@ -85,7 +91,11 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
         
         At(LocomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
         
-        Any(LocomotionState, new FuncPredicate(()=> !dashTimer.IsRunning && !attackTimer.IsRunning));
+        Any(LocomotionState, new FuncPredicate(()=> !dashTimer.IsRunning && !attackTimer.IsRunning && !HitStunTimer.IsRunning && !isDead));
+
+        Any(HitStunState, new FuncPredicate(()=> HitStunTimer.IsRunning && !isDead));
+        
+        Any(DeathState, new FuncPredicate(()=> isDead));
         
         stateMachine.SetState(LocomotionState);
     }
@@ -109,9 +119,10 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
 
         attackTimer = new CountdownTimer(currentWeapon._weaponData.attackDuration);
         attackCooldownTimer = new CountdownTimer(currentWeapon._weaponData.attackCooldown);
-
         
-        timers = new List<Timer>(4) { dashTimer, dashCooldownTimer, attackCooldownTimer, attackTimer };
+        HitStunTimer = new CountdownTimer(hitStunDuration);
+        
+        timers = new List<Timer>(5) { dashTimer, dashCooldownTimer, attackCooldownTimer, attackTimer, HitStunTimer};
         
         dashTimer.OnTimerStop += () =>
         {
@@ -119,10 +130,22 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
             _dashVelocity = oneF;
         };
 
+        
     }
     
     private void Start() => input.EnablePlayerActions();
-
+    
+    private void StartHitStunTimer()
+    {
+        if (health.IsDead)
+        {
+            isDead = true;
+            return;
+        }
+            
+        HitStunTimer.Start();
+    } 
+    
     private void OnEnable()
     {
         input.Attack += OnAttack;
@@ -283,13 +306,7 @@ public class PlayerController : ValidatedMonoBehaviour, IDamagable
         
         Destroy(weaponDrop.gameObject);
     }
-
-    public void Damage(int damage)
-    {
-        currentHealth -= damage;
-        Debug.Log(currentHealth);
-    }
-
+    
     private void OnTriggerEnter(Collider other)
     {
         if (pickupLayer == other.gameObject.layer)

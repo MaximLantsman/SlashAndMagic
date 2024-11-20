@@ -18,7 +18,7 @@ public class EnemyDagger : Enemy
     private List<Timer> timers;
     private CountdownTimer attackTimer;
 
-    private void Awake()
+    public override void OnInitialized()
     {
         SetUpTimers();
 
@@ -70,7 +70,6 @@ public class EnemyDagger : Enemy
         {
             if (CanAttackPlayer())
             {
-                Debug.Log("Done attack");
                 Attack();
             }
         };
@@ -85,9 +84,7 @@ public class EnemyDagger : Enemy
     {
         if(attackTimer.IsRunning) return;
         
-        Debug.Log("are you next");
         attackTimer.Start();
-        Debug.Log(attackTimer.Progress);
         
         currentWeapon.Attack();
     }

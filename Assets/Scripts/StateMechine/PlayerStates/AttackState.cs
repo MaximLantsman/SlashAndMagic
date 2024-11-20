@@ -8,9 +8,6 @@ public class AttackState : BaseState
 
     public override void OnEnter()
     {
-        Debug.Log("Enter Attack");
-        
-
         animator.CrossFade(weaponAnimation, crossFadeDuration);
     }
 
@@ -21,7 +18,6 @@ public class AttackState : BaseState
 
     public override void FixedUpdate()
     {
-        Debug.Log("Attacking");
         player.HandleAttack();
     }
 }

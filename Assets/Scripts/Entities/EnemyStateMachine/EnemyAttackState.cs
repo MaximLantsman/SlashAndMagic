@@ -29,6 +29,5 @@ public class EnemyAttackState : EnemyBaseState
     public override void Update()
     {
         enemy.Attack();
-
     }
 }

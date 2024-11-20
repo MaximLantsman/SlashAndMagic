@@ -10,6 +10,8 @@ namespace StateMechine
         private protected static readonly int IdleHash = Animator.StringToHash("Idle");
         private protected static readonly int DashHash = Animator.StringToHash("Dash");
         private protected static readonly int RunHash = Animator.StringToHash("Run");
+        private protected static readonly int HitStunHash = Animator.StringToHash("HitStun");
+        private protected static readonly int DeathHash = Animator.StringToHash("Death");
         //private protected static readonly int AttackHash = Animator.StringToHash("Attack");
         
         protected const float crossFadeDuration = 0.1f;
@@ -44,7 +46,7 @@ namespace StateMechine
 
         public virtual void OnExit()
         {
-            Debug.Log("Exit state");
+            //noop
         }
     }
 }

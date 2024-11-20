@@ -30,8 +30,7 @@ namespace Entities
         {
             if (weaponInstance!=null )
             {
-                Debug.Log("you work?");
-                weaponInstance.PreformHitboxAttack(weaponData.attackDuration,weaponData.damage, weaponCollider);
+                weaponInstance.PreformHitboxAttack(weaponData.attackDuration, weaponData.damage, weaponCollider);
             }
         }
         
