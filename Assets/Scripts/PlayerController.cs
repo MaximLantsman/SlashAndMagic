@@ -5,7 +5,6 @@ using KBCore.Refs;
 using StateMechine;
 using UnityEngine;
 using Utilities;
-using WeaponSystem;
 
 public class PlayerController : ValidatedMonoBehaviour
 {

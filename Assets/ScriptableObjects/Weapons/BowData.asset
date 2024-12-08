@@ -9,12 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cb3e7e14f5435148a1499edb096c7d6, type: 3}
-  m_Name: EnemyOne
+  m_Script: {fileID: 11500000, guid: 783e1b12c1a3cee42ac3cac50df9a13a, type: 3}
+  m_Name: BowData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5800295649627851621, guid: 6412677db13d88b4f8efcd32b5e18a31, type: 3}
-  _name: Orc
-  _attackDuration: 10
-  _enemyType: 0
-  _damage: 10
-  _enemyManagerPrice: 3
+  prefab: {fileID: 2038113677841771671, guid: 4ffd7805ca9c82f48b6bca8f55335c5c, type: 3}
+  _name: Bow
+  _attackDuration: 1
+  _attackCooldown: 3
+  _damage: 5

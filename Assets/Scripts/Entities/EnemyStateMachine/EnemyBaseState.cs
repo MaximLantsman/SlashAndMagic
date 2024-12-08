@@ -13,6 +13,10 @@ public abstract class EnemyBaseState: IState
     protected static readonly int RunHash = Animator.StringToHash("Run");
     protected static readonly int BattleCryHash = Animator.StringToHash("BattleCry");
     
+    protected static readonly int HitStunHash = Animator.StringToHash("HitStun");
+    protected static readonly int DeathHash = Animator.StringToHash("Death");
+
+    
     private protected EnemyBaseState(Enemy enemy, Animator animator)
     {
         this.enemy = enemy;

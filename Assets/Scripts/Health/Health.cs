@@ -28,11 +28,9 @@ namespace Health
         public void TakeDamage(int damage)
         {
             currentHealth -= damage;
-            Debug.Log($"health: {currentHealth} bool: {IsDead}");
             
             OnHit.Invoke();
             PublishHealthPercentage();
-            
         }
 
  

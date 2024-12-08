@@ -16,7 +16,6 @@ namespace Entities
         
         private WeaponHitboxHandler weaponInstance;
         
-        
         public WeaponData _weaponData => weaponData;
         public string _animationName => animationName;
         public GameObject _weaponPrefab => weaponData.prefab;

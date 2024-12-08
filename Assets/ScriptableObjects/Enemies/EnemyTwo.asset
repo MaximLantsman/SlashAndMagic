@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2193663731378415978, guid: 472beb6088568ef4492bc2e0f119cc46, type: 3}
   _name: Goblin
-  _attackDuration: 0.5
+  _attackDuration: 1
   _enemyType: 1
   _damage: 5
   _enemyManagerPrice: 1

@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+
 public class EnemyAttackState : EnemyBaseState
 {
     private readonly NavMeshAgent agent;
@@ -28,6 +29,7 @@ public class EnemyAttackState : EnemyBaseState
 
     public override void Update()
     {
+        enemy.HandleRotation();
         enemy.Attack();
     }
 }

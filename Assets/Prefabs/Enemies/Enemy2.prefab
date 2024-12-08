@@ -1591,7 +1591,7 @@ MonoBehaviour:
   player: {fileID: 0}
   enemyAttackAnimation: Stabbing
   timeBetweenAttacks: 2
-  attackRange: 1.5
+  attackRange: 1
   currentWeapon: {fileID: 5780659449092402063}
 --- !u!114 &6002004166955850612
 MonoBehaviour:
@@ -1605,6 +1605,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13e5e423ccd9d3e46a07ae0b1fefac78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnHit:
+    m_PersistentCalls:
+      m_Calls: []
   maxHealth: 10
   playerHealthChannel: {fileID: 0}
 --- !u!54 &5318188995621162073
@@ -5043,7 +5046,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 726123980392875945, guid: a611871aa4f987941bf934736c0ee6d7, type: 3}
       propertyPath: m_Name
-      value: Dagger
+      value: GoblinDagger
       objectReference: {fileID: 0}
     - target: {fileID: 1355439211875064531, guid: a611871aa4f987941bf934736c0ee6d7, type: 3}
       propertyPath: m_Enabled
@@ -5057,6 +5060,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5142462310614282078, guid: a611871aa4f987941bf934736c0ee6d7, type: 3}
+      propertyPath: weaponData
+      value: 
+      objectReference: {fileID: 11400000, guid: c893c83a80eef1c40a596d95a5b8aa8f, type: 2}
     - target: {fileID: 5142462310614282078, guid: a611871aa4f987941bf934736c0ee6d7, type: 3}
       propertyPath: weaponCollider
       value: 

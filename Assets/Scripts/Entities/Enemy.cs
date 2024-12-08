@@ -31,6 +31,9 @@ public abstract class Enemy : Entity
     {
         transform.LookAt(player.position);
     }
+    
+    protected abstract void HitStun();
+    //protected abstract void EnemyDeath();
 }
 
 
